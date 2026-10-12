@@ -47,6 +47,9 @@ d["hasCompletedOnboarding"]=True
 json.dump(d,open(p,"w"))
 PY
 
+# Daemon gunlugunu eklenti gunlugune akit (ha addons logs ile izlenebilsin)
+touch /data/logs/ev_bot_daemon.log; tail -n 20 -F /data/logs/ev_bot_daemon.log &
+
 bashio::log.info "Ev Bot basliyor — depo: $REPO_DIR, claude: $(claude --version 2>/dev/null || echo ?)"
 cd "$REPO_DIR"
 exec python3 "$REPO_DIR/scripts/ev_bot_daemon.py"
