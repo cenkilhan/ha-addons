@@ -1,5 +1,5 @@
 name: Ev Bot
-version: "1.0.1"
+version: "1.0.2"
 slug: ev_bot
 description: Telegram ev botu — mesajları Claude Code'a verir, Home Assistant'ı yönetir (şahsi).
 url: https://github.com/cenkilhan/ha-addons

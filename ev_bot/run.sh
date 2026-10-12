@@ -35,6 +35,10 @@ export HA_URL="http://supervisor/core"
 export HA_TOKEN="${SUPERVISOR_TOKEN}"
 export EV_BOT_ON_GREEN=1
 export PATH="/usr/local/bin:/usr/bin:/bin:$REPO_DIR/scripts"
+# Konteyner root calisir; Claude root'ta --dangerously-skip-permissions'i reddeder
+# ("cannot be used with root/sudo privileges"). IS_SANDBOX=1 bu kontrolu kaldirir — eklenti
+# zaten yalitilmis bir konteyner. (12.10.2026: ilk gercek mesaj bu yuzden hata dondu.)
+export IS_SANDBOX=1
 
 # Claude icin calisma alani guveni (headless -p modunda trust diyalogu askida kalmasin)
 python3 - "$REPO_DIR" <<'PY'
@@ -52,4 +56,20 @@ touch /data/logs/ev_bot_daemon.log; tail -n 20 -F /data/logs/ev_bot_daemon.log &
 
 bashio::log.info "Ev Bot basliyor — depo: $REPO_DIR, claude: $(claude --version 2>/dev/null || echo ?)"
 cd "$REPO_DIR"
+
+# Baslangic oz-testi (arka planda): Claude bu konteynerde gercekten cevap verebiliyor mu?
+# Sonuc eklenti gunlugune duser; Telegram'dan mesaj atmadan dogrulanabilir.
+(
+  cikti="$(CLAUDE_CODE_OAUTH_TOKEN="$CLAUDE_OAUTH" timeout 180 claude -p --output-format json \
+            --dangerously-skip-permissions "Sadece OK yaz." </dev/null 2>&1)" || true
+  sonuc="$(printf '%s' "$cikti" | python3 -c 'import sys,json
+try:
+    d=json.loads(sys.stdin.read()); print(("HATA " if d.get("is_error") else "OK ")+str(d.get("result"))[:120])
+except Exception: print("HATA (json degil)")' 2>/dev/null || echo "HATA (ayristirilamadi)")"
+  if [[ "$sonuc" == OK* ]]; then
+    bashio::log.info "Claude oz-testi: $sonuc"
+  else
+    bashio::log.error "Claude oz-testi: $sonuc — ham: $(printf '%s' "$cikti" | tail -c 300)"
+  fi
+) &
 exec python3 "$REPO_DIR/scripts/ev_bot_daemon.py"
