@@ -1,0 +1,29 @@
+name: Ev Bot
+version: "1.0.0"
+slug: ev_bot
+description: Telegram ev botu — mesajları Claude Code'a verir, Home Assistant'ı yönetir (şahsi).
+url: https://github.com/cenkilhan/ha-addons
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: services
+boot: auto
+watchdog: ""
+homeassistant_api: true
+hassio_api: true
+map:
+  - type: share
+    read_only: false
+options:
+  tg_bot_token: ""
+  tg_chat_id: ""
+  claude_oauth_token: ""
+  repo_dir: /share/ev-otomasyon
+  log_level: info
+schema:
+  tg_bot_token: password
+  tg_chat_id: str
+  claude_oauth_token: password
+  repo_dir: str
+  log_level: list(debug|info|warning)?
