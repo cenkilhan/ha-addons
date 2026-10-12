@@ -9,7 +9,6 @@ arch:
 init: false
 startup: services
 boot: auto
-watchdog: ""
 homeassistant_api: true
 hassio_api: true
 map:
